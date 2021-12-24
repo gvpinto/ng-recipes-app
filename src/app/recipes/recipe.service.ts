@@ -8,15 +8,15 @@ export class RecipeService {
   selectedRecipe = new EventEmitter<Recipe>();
   private recipes: Recipe[] = [
     new Recipe(
-      'A Test Recipe',
-      'This is simply a test',
-      'https://www.cookingclassy.com/wp-content/uploads/2021/10/beef-stew-30.jpg',
+      'Hamburger',
+      'Declious Hamburger',
+      'https://img.taste.com.au/dkEhBL4s/w643-h428-cfill-q90/taste/2016/11/hamburger-with-caramelised-pineapple-90338-1.jpeg',
       [new Ingredient('Meat', 1), new Ingredient('Bread', 3)]
     ),
     new Recipe(
-      'Another Test Recipe',
-      'This is simply another test',
-      'https://www.cookingclassy.com/wp-content/uploads/2021/10/beef-stew-30.jpg',
+      'Beef Stew',
+      'Yummy Stew!',
+      'https://img.taste.com.au/uEWtNSPx/w643-h428-cfill-q90/taste/2019/07/classic-beef-stew-151457-2.jpg',
       [new Ingredient('Chicken', 2), new Ingredient('Buns', 5)]
     ),
   ];
