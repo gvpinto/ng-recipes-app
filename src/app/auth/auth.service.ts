@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { catchError, Observable, throwError } from 'rxjs';
 import { AuthKeyService } from './auth-key.service';
 
 interface AuthResponseData {
@@ -20,13 +21,30 @@ export class AuthService {
   ) {}
   signup(email: string, password: string) {
     // Return subscribable
-    return this.http.post<AuthResponseData>(
-      `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${this.authKeyService.getWebAPIKey()}`,
-      {
-        email: email,
-        password: password,
-        returnSecureToken: true,
-      }
-    );
+    return this.http
+      .post<AuthResponseData>(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${this.authKeyService.getWebAPIKey()}`,
+        {
+          email: email,
+          password: password,
+          returnSecureToken: true,
+        }
+      )
+      .pipe(
+        catchError((errorResp) => {
+          let errorMessage = 'An Unknown Error Occurred';
+          if (!errorResp.error || !errorResp.error.error) {
+            return throwError(() => new Error(errorMessage));
+          }
+          switch (errorResp.error.error.message) {
+            case 'EMAIL_EXISTS':
+              errorMessage = 'This email already exists';
+              break;
+            default:
+              break;
+          }
+          return throwError(() => new Error(errorMessage));
+        })
+      );
   }
 }
