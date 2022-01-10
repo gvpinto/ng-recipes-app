@@ -3,13 +3,14 @@ import { Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
 import { AuthKeyService } from './auth-key.service';
 
-interface AuthResponseData {
+export interface AuthResponseData {
   kind: string;
   idToken: string; //A Firebase Auth ID token for the newly created user.
   email: string; //The email for the newly created user.
   refreshToken: string; //A Firebase Auth refresh token for the newly created user.
   expiresIn: string; //The number of seconds in which the ID token expires.
   localId: string; //The uid of the newly created user.
+  registered?: boolean; //Whether the email is for an existing account.
 }
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -19,6 +20,19 @@ export class AuthService {
     // API Key is copied from Firebase console > Project Overview > ProjectSettings
     private authKeyService: AuthKeyService
   ) {}
+
+  login(email: string, password: string) {
+    // Return subscribable
+    return this.http.post<AuthResponseData>(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${this.authKeyService.getWebAPIKey()}`,
+      {
+        email: email,
+        password: password,
+        returnSecureToken: true,
+      }
+    );
+  }
+
   signup(email: string, password: string) {
     // Return subscribable
     return this.http
