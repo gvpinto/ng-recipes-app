@@ -13,7 +13,7 @@ export class AuthComponent implements OnInit {
   isLoading = false;
   // Couldn't set it to null
   error?: string;
-  obs?: Observable<AuthResponseData>;
+  obsAuth?: Observable<AuthResponseData>;
 
   constructor(private authService: AuthService) {}
 
@@ -24,7 +24,6 @@ export class AuthComponent implements OnInit {
   }
 
   onSubmit(form: NgForm) {
-    console.log(form.value);
     if (!form.valid) {
       return;
     }
@@ -32,13 +31,13 @@ export class AuthComponent implements OnInit {
     const password = form.value.password;
 
     if (this.isLoginMode) {
-      this.obs = this.authService.login(email, password);
+      this.obsAuth = this.authService.login(email, password);
     } else {
       this.isLoading = true;
-      this.obs = this.authService.signup(email, password);
+      this.obsAuth = this.authService.signup(email, password);
     }
 
-    this.obs.subscribe({
+    this.obsAuth.subscribe({
       next: (respData) => {
         console.log(respData);
         this.isLoading = false;

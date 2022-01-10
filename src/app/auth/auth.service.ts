@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
 import { AuthKeyService } from './auth-key.service';
@@ -23,14 +23,16 @@ export class AuthService {
 
   login(email: string, password: string) {
     // Return subscribable
-    return this.http.post<AuthResponseData>(
-      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${this.authKeyService.getWebAPIKey()}`,
-      {
-        email: email,
-        password: password,
-        returnSecureToken: true,
-      }
-    );
+    return this.http
+      .post<AuthResponseData>(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${this.authKeyService.getWebAPIKey()}`,
+        {
+          email: email,
+          password: password,
+          returnSecureToken: true,
+        }
+      )
+      .pipe(catchError(this.handleError));
   }
 
   signup(email: string, password: string) {
@@ -44,21 +46,27 @@ export class AuthService {
           returnSecureToken: true,
         }
       )
-      .pipe(
-        catchError((errorResp) => {
-          let errorMessage = 'An Unknown Error Occurred';
-          if (!errorResp.error || !errorResp.error.error) {
-            return throwError(() => new Error(errorMessage));
-          }
-          switch (errorResp.error.error.message) {
-            case 'EMAIL_EXISTS':
-              errorMessage = 'This email already exists';
-              break;
-            default:
-              break;
-          }
-          return throwError(() => new Error(errorMessage));
-        })
-      );
+      .pipe(catchError(this.handleError));
+  }
+
+  private handleError(errorResp: HttpErrorResponse) {
+    let errorMessage = 'An Unknown Error Occurred';
+    if (!errorResp.error || !errorResp.error.error) {
+      return throwError(() => new Error(errorMessage));
+    }
+    switch (errorResp.error.error.message) {
+      case 'EMAIL_EXISTS':
+        errorMessage = 'This email already exists';
+        break;
+      case 'EMAIL_NOT_FOUND':
+        errorMessage = 'This email does not exists';
+        break;
+      case 'INVALID_PASSWORD':
+        errorMessage = 'Password is invalid';
+        break;
+      default:
+        break;
+    }
+    return throwError(() => new Error(errorMessage));
   }
 }
