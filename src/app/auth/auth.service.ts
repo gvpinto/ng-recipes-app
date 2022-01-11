@@ -38,25 +38,26 @@ export class AuthService {
       .pipe(
         catchError(this.handleError),
         tap((respData) => {
-          const expirationDate = new Date(
-            new Date().getTime() + +respData.expiresIn * 1000
-          );
-          const user = new User(
+          this.handleAuthentication(
             respData.email,
             respData.localId,
             respData.idToken,
-            expirationDate
+            +respData.expiresIn
           );
-          this.user.next(user);
         })
       );
   }
 
   private handleAuthentication(
     email: string,
+    userId: string,
     token: string,
     expiresIn: number
-  ) {}
+  ) {
+    const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
+    const user = new User(email, userId, token, expirationDate);
+    this.user.next(user);
+  }
 
   signup(email: string, password: string) {
     // Return subscribable
@@ -69,7 +70,17 @@ export class AuthService {
           returnSecureToken: true,
         }
       )
-      .pipe(catchError(this.handleError));
+      .pipe(
+        catchError(this.handleError),
+        tap((respData) => {
+          this.handleAuthentication(
+            respData.email,
+            respData.localId,
+            respData.idToken,
+            +respData.expiresIn
+          );
+        })
+      );
   }
 
   private handleError(errorResp: HttpErrorResponse) {
