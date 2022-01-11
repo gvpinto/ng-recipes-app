@@ -1,7 +1,8 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, Observable, throwError } from 'rxjs';
+import { catchError, Observable, Subject, tap, throwError } from 'rxjs';
 import { AuthKeyService } from './auth-key.service';
+import { User } from './user.model';
 
 export interface AuthResponseData {
   kind: string;
@@ -14,6 +15,8 @@ export interface AuthResponseData {
 }
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  user = new Subject<User>();
+
   constructor(
     private http: HttpClient,
     // Create a auth-key.service.ts file under auth and return getWebAPIKey from it
@@ -32,8 +35,17 @@ export class AuthService {
           returnSecureToken: true,
         }
       )
-      .pipe(catchError(this.handleError));
+      .pipe(
+        catchError(this.handleError),
+        tap((respData) => {})
+      );
   }
+
+  private handleAuthentication(
+    email: string,
+    token: string,
+    expiresIn: number
+  ) {}
 
   signup(email: string, password: string) {
     // Return subscribable
