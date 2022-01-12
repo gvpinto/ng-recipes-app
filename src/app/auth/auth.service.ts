@@ -1,5 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, tap, throwError } from 'rxjs';
 import { AuthKeyService } from './auth-key.service';
 import { User } from './user.model';
@@ -22,14 +23,44 @@ export class AuthService {
     private http: HttpClient,
     // Create a auth-key.service.ts file under auth and return getWebAPIKey from it
     // API Key is copied from Firebase console > Project Overview > ProjectSettings
-    private authKeyService: AuthKeyService
+    private authKeyService: AuthKeyService,
+    private router: Router
   ) {}
+
+  logout() {
+    this.user.next(null!);
+    this.router.navigate(['/auth']);
+  }
 
   login(email: string, password: string) {
     // Return subscribable
     return this.http
       .post<AuthResponseData>(
         `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${this.authKeyService.getWebAPIKey()}`,
+        {
+          email: email,
+          password: password,
+          returnSecureToken: true,
+        }
+      )
+      .pipe(
+        catchError(this.handleError),
+        tap((respData) => {
+          this.handleAuthentication(
+            respData.email,
+            respData.localId,
+            respData.idToken,
+            +respData.expiresIn
+          );
+        })
+      );
+  }
+
+  signup(email: string, password: string) {
+    // Return subscribable
+    return this.http
+      .post<AuthResponseData>(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${this.authKeyService.getWebAPIKey()}`,
         {
           email: email,
           password: password,
@@ -58,30 +89,6 @@ export class AuthService {
     const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
     const user = new User(email, userId, token, expirationDate);
     this.user.next(user);
-  }
-
-  signup(email: string, password: string) {
-    // Return subscribable
-    return this.http
-      .post<AuthResponseData>(
-        `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${this.authKeyService.getWebAPIKey()}`,
-        {
-          email: email,
-          password: password,
-          returnSecureToken: true,
-        }
-      )
-      .pipe(
-        catchError(this.handleError),
-        tap((respData) => {
-          this.handleAuthentication(
-            respData.email,
-            respData.localId,
-            respData.idToken,
-            +respData.expiresIn
-          );
-        })
-      );
   }
 
   private handleError(errorResp: HttpErrorResponse) {
