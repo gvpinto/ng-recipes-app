@@ -6,7 +6,7 @@ import {
   RouterStateSnapshot,
   UrlTree,
 } from '@angular/router';
-import { map, Observable, tap } from 'rxjs';
+import { map, Observable, take, tap } from 'rxjs';
 import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
@@ -21,12 +21,19 @@ export class AuthGuard implements CanActivate {
     | Observable<boolean | UrlTree>
     | Promise<boolean | UrlTree> {
     return this.authService.user.pipe(
+      // make sure its not listening all the time and only once.
+      take(1),
       map((user) => {
-        return !!user;
-      }),
-      tap((auth) => {
-        this.router.navigate(['/auth']);
+        const isAuth = !!user;
+        if (isAuth) {
+          return true;
+        }
+        return this.router.createUrlTree(['/auth']);
       })
+      // Can cause race conditions
+      //   tap((auth) => {
+      //     this.router.navigate(['/auth']);
+      //   })
     );
   }
 }
