@@ -1,8 +1,14 @@
-import { Component, ComponentFactoryResolver, OnInit } from '@angular/core';
+import {
+  Component,
+  ComponentFactoryResolver,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AlertComponent } from '../shared/alert/alert.component';
+import { PlaceholderDirective } from '../shared/placeholder/placeholder.directive';
 import { AuthResponseData, AuthService } from './auth.service';
 
 @Component({
@@ -15,6 +21,8 @@ export class AuthComponent implements OnInit {
   isLoading = false;
   // Couldn't set it to null
   error?: string;
+  @ViewChild(PlaceholderDirective, { static: false })
+  alertHost?: PlaceholderDirective;
   obsAuth?: Observable<AuthResponseData>;
 
   constructor(
@@ -66,5 +74,13 @@ export class AuthComponent implements OnInit {
   showErrorAlert(message: string) {
     const alertComponentFactory =
       this.componentFactoryResolver.resolveComponentFactory(AlertComponent);
+
+    // Access to the location in the DOM
+    const hostViewContainerRef = this.alertHost?.viewContainerRef;
+
+    //Clear everything before rendering
+    hostViewContainerRef?.clear();
+
+    hostViewContainerRef?.createComponent(alertComponentFactory);
   }
 }
