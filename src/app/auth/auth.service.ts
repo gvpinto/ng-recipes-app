@@ -132,6 +132,7 @@ export class AuthService {
   }
 
   private handleError(errorResp: HttpErrorResponse) {
+    console.log(errorResp);
     let errorMessage = 'An Unknown Error Occurred';
     if (!errorResp.error || !errorResp.error.error) {
       return throwError(() => new Error(errorMessage));
@@ -145,6 +146,9 @@ export class AuthService {
         break;
       case 'INVALID_PASSWORD':
         errorMessage = 'Password is invalid';
+        break;
+      case 'TOO_MANY_ATTEMPTS_TRY_LATER':
+        errorMessage = 'Too many attempts';
         break;
       default:
         break;
