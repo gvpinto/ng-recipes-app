@@ -1,12 +1,13 @@
 import {
   Component,
   ComponentFactoryResolver,
+  OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { AlertComponent } from '../shared/alert/alert.component';
 import { PlaceholderDirective } from '../shared/placeholder/placeholder.directive';
 import { AuthResponseData, AuthService } from './auth.service';
@@ -16,7 +17,7 @@ import { AuthResponseData, AuthService } from './auth.service';
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.css'],
 })
-export class AuthComponent implements OnInit {
+export class AuthComponent implements OnInit, OnDestroy {
   isLoginMode = true;
   isLoading = false;
   // Couldn't set it to null
@@ -24,6 +25,7 @@ export class AuthComponent implements OnInit {
   @ViewChild(PlaceholderDirective, { static: false })
   alertHost?: PlaceholderDirective;
   obsAuth?: Observable<AuthResponseData>;
+  private closeSub?: Subscription;
 
   constructor(
     private authService: AuthService,
@@ -74,13 +76,25 @@ export class AuthComponent implements OnInit {
   showErrorAlert(message: string) {
     const alertComponentFactory =
       this.componentFactoryResolver.resolveComponentFactory(AlertComponent);
-
     // Access to the location in the DOM
     const hostViewContainerRef = this.alertHost?.viewContainerRef;
-
     //Clear everything before rendering
     hostViewContainerRef?.clear();
+    const componentRef = hostViewContainerRef?.createComponent(
+      alertComponentFactory
+    );
 
-    hostViewContainerRef?.createComponent(alertComponentFactory);
+    // Interacting with the component
+    componentRef!.instance.message = message;
+    this.closeSub = componentRef!.instance.close.subscribe(() => {
+      this.closeSub?.unsubscribe();
+      hostViewContainerRef?.clear();
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.closeSub) {
+      this.closeSub?.unsubscribe();
+    }
   }
 }
