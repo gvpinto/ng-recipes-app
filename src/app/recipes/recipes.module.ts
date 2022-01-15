@@ -25,13 +25,14 @@ import { RecipesComponent } from './recipes.component';
     CommonModule,
     RecipesRoutingModule,
   ],
-  exports: [
-    RecipesComponent,
-    RecipeListComponent,
-    RecipeDetailComponent,
-    RecipeItemComponent,
-    RecipeStartComponent,
-    RecipeEditComponent,
-  ],
+  // Not required to export since its self contained
+  //   exports: [
+  //     RecipesComponent,
+  //     RecipeListComponent,
+  //     RecipeDetailComponent,
+  //     RecipeItemComponent,
+  //     RecipeStartComponent,
+  //     RecipeEditComponent,
+  //   ],
 })
 export class RecipesModule {}
