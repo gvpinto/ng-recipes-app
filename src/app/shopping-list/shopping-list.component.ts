@@ -1,8 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { LoggingService } from '../logging.service';
 import { Ingredient } from '../shared/ingredient.mode';
 import { ShoppingListService } from './shopping-list.service';
+import { Store } from '@ngrx/store';
 
 @Component({
   selector: 'app-shopping-list',
@@ -10,26 +11,30 @@ import { ShoppingListService } from './shopping-list.service';
   styleUrls: ['./shopping-list.component.css'],
 })
 export class ShoppingListComponent implements OnInit, OnDestroy {
-  ingredients?: Ingredient[];
-  private ingredientsChangedSubscription?: Subscription;
+  ingredients?: Observable<{ ingredients: Ingredient[] }>;
+  //   private ingredientsChangedSubscription?: Subscription;
 
   constructor(
     private shoppingListService: ShoppingListService,
-    private loggingService: LoggingService
+    private loggingService: LoggingService,
+    // Store data for Shopping list key with the key of the reducer
+    private store: Store<{ shoppingList: { ingredients: Ingredient[] } }>
   ) {}
 
   ngOnInit(): void {
-    this.ingredients = this.shoppingListService.getIngredients();
-    this.shoppingListService.ingredientsChanged.subscribe(
-      (ingredients: Ingredient[]) => {
-        this.ingredients = ingredients;
-      }
-    );
-    this.loggingService.printLog('Hello from ShoppingListComponent ngOnInit');
+    // Returns an Observable
+    this.ingredients = this.store.select('shoppingList');
+    // this.ingredients = this.shoppingListService.getIngredients();
+    // this.shoppingListService.ingredientsChanged.subscribe(
+    //   (ingredients: Ingredient[]) => {
+    //     this.ingredients = ingredients;
+    //   }
+    // );
+    // this.loggingService.printLog('Hello from ShoppingListComponent ngOnInit');
   }
 
   ngOnDestroy(): void {
-    this.ingredientsChangedSubscription?.unsubscribe();
+    // this.ingredientsChangedSubscription?.unsubscribe();
   }
 
   onEditItem(index: number) {
