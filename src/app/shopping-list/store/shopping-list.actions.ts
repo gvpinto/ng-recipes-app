@@ -6,5 +6,6 @@ export class AddIngredient implements Action {
   // Never should be changed from outside. Enforced by TypeScript
   //   readonly type = ADD_INGREDIENT;
   type = ADD_INGREDIENT;
-  payload?: Ingredient;
+  //   payload?: Ingredient;
+  constructor(public payload?: Ingredient) {}
 }
