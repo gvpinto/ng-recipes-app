@@ -52,9 +52,16 @@ export class ShoppingEditComponent implements OnInit {
     const value = form.value;
     const newIngredient = new Ingredient(value.name, value.amount);
     if (this.editMode) {
-      this.shoppingListService.updateIngredient(
-        this.editedItemIndex!,
-        newIngredient
+      // Replacing code with NgRx
+      //   this.shoppingListService.updateIngredient(
+      //     this.editedItemIndex!,
+      //     newIngredient
+      //   );
+      this.store.dispatch(
+        new ShoppingListActions.UpdateIngredient({
+          index: this.editedItemIndex!,
+          ingredient: newIngredient,
+        })
       );
     } else {
       // Commenting old code
@@ -72,7 +79,11 @@ export class ShoppingEditComponent implements OnInit {
   }
 
   onDelete() {
-    this.shoppingListService.deleteIngredient(this.editedItemIndex!);
+    // Update to NgRx
+    // this.shoppingListService.deleteIngredient(this.editedItemIndex!);
+    this.store.dispatch(
+      new ShoppingListActions.DeleteIngredient(this.editedItemIndex!)
+    );
     this.onClear();
   }
 }
