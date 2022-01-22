@@ -23,7 +23,6 @@ export class ShoppingEditComponent implements OnInit {
   @ViewChild('f', { static: false }) shoppingListForm?: NgForm;
   subscription?: Subscription;
   editMode = false;
-  editedItemIndex?: number;
   editedItem?: Ingredient;
 
   constructor(
@@ -74,10 +73,7 @@ export class ShoppingEditComponent implements OnInit {
       //     newIngredient
       //   );
       this.store.dispatch(
-        new ShoppingListActions.UpdateIngredient({
-          index: this.editedItemIndex!,
-          ingredient: newIngredient,
-        })
+        new ShoppingListActions.UpdateIngredient(newIngredient)
       );
     } else {
       // Commenting old code
@@ -98,9 +94,7 @@ export class ShoppingEditComponent implements OnInit {
   onDelete() {
     // Update to NgRx
     // this.shoppingListService.deleteIngredient(this.editedItemIndex!);
-    this.store.dispatch(
-      new ShoppingListActions.DeleteIngredient(this.editedItemIndex!)
-    );
+    this.store.dispatch(new ShoppingListActions.DeleteIngredient());
     this.onClear();
   }
 }

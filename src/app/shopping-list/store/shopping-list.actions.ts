@@ -27,7 +27,7 @@ export class UpdateIngredient implements Action {
   // Never should be changed from outside. Enforced by TypeScript
   //   readonly type = UPDATE_INGREDIENT;
   type = UPDATE_INGREDIENT;
-  //   constructor(public payload?: {index: number, ingredient: Ingredient}) {}
+  //   constructor(public payload?: Ingredient) {}
   constructor(public payload?: any) {}
 }
 export class DeleteIngredient implements Action {
