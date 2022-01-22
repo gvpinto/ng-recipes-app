@@ -2,7 +2,6 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { LoggingService } from '../logging.service';
 import { Ingredient } from '../shared/ingredient.mode';
-import { ShoppingListService } from './shopping-list.service';
 import { Store } from '@ngrx/store';
 import * as fromShoppingList from './store/shopping-list.reducer';
 import * as ShoppingListActions from './store/shopping-list.actions';
@@ -17,7 +16,6 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
   //   private ingredientsChangedSubscription?: Subscription;
 
   constructor(
-    private shoppingListService: ShoppingListService,
     private loggingService: LoggingService,
     // Store data for Shopping list key with the key of the reducer
     private store: Store<fromShoppingList.AppState>
