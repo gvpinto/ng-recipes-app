@@ -2,9 +2,21 @@ import { Action } from '@ngrx/store';
 import { Ingredient } from '../../shared/ingredient.mode';
 import * as ShoppingListActions from './shopping-list.actions';
 
-const initialState = {
+export interface State {
+  ingredients: Ingredient[];
+  editedIngredient?: Ingredient;
+  editedIngredientIndex: number;
+}
+
+const initialState: State = {
   ingredients: [new Ingredient('Carrots', 4), new Ingredient('Tomotoes', 9)],
+  editedIngredient: undefined,
+  editedIngredientIndex: -1,
 };
+
+export interface AppState {
+  shoppingList: State;
+}
 
 export function shoppingListReducer(
   state = initialState,
@@ -43,6 +55,20 @@ export function shoppingListReducer(
         ingredients: state.ingredients.filter((ig, igIndex) => {
           return igIndex !== action.payload!;
         }),
+      };
+
+    case ShoppingListActions.START_EDIT:
+      return {
+        ...state,
+        editedIngredientIndex: action.payload!,
+        editedIngredient: { ...state.ingredients[action.payload!] },
+      };
+
+    case ShoppingListActions.STOP_EDIT:
+      return {
+        ...state,
+        editedIngredientIndex: -1,
+        editedIngredient: undefined,
       };
 
     default:

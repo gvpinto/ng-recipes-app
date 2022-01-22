@@ -4,6 +4,8 @@ import { LoggingService } from '../logging.service';
 import { Ingredient } from '../shared/ingredient.mode';
 import { ShoppingListService } from './shopping-list.service';
 import { Store } from '@ngrx/store';
+import * as fromShoppingList from './store/shopping-list.reducer';
+import * as ShoppingListActions from './store/shopping-list.actions';
 
 @Component({
   selector: 'app-shopping-list',
@@ -18,7 +20,7 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
     private shoppingListService: ShoppingListService,
     private loggingService: LoggingService,
     // Store data for Shopping list key with the key of the reducer
-    private store: Store<{ shoppingList: { ingredients: Ingredient[] } }>
+    private store: Store<fromShoppingList.AppState>
   ) {}
 
   ngOnInit(): void {
@@ -38,6 +40,8 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
   }
 
   onEditItem(index: number) {
-    this.shoppingListService.startedEditing.next(index);
+    // Replace with NgRx
+    // this.shoppingListService.startedEditing.next(index);
+    this.store.dispatch(new ShoppingListActions.StartEdit(index));
   }
 }
