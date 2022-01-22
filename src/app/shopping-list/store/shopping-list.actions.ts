@@ -40,14 +40,14 @@ export class DeleteIngredient implements Action {
 export class StartEdit implements Action {
   type = START_EDIT;
   //constructor(public payload?: number) {}
-  constructor(public payload?: any) {}
+  constructor(public payload?: number) {}
 }
 export class StopEdit implements Action {
   type = STOP_EDIT;
   constructor(public payload?: any) {}
 }
 
-export type ShoppingListActionTypes =
+export type ShoppingListActions =
   | AddIngredient
   | AddIngredients
   | UpdateIngredient
