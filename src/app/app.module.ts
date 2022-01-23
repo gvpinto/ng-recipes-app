@@ -9,6 +9,8 @@ import { CoreModule } from './core.module';
 import { LoggingService } from './logging.service';
 import { StoreModule } from '@ngrx/store';
 import * as fromApp from './store/app.reducer';
+import { EffectsModule } from '@ngrx/effects';
+import { AuthEffects } from './auth/store/auth.effects';
 
 // const reducers: ActionReducerMap<any, any> = {
 //   shoppingList: shoppingListReducer,
@@ -19,6 +21,7 @@ import * as fromApp from './store/app.reducer';
     BrowserModule,
     AppRoutingModule,
     StoreModule.forRoot(fromApp.appReducer),
+    EffectsModule.forRoot([AuthEffects]),
     // StoreModule.forRoot(reducers),
     HttpClientModule,
     SharedModule,
