@@ -19,8 +19,9 @@ export interface AuthResponseData {
 }
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  // Replacing with NgRx
   //   user = new Subject<User>();
-  user = new BehaviorSubject<User>(null!);
+  // user = new BehaviorSubject<User>(null!);
   private tokenExpirationTimer: any;
 
   constructor(
