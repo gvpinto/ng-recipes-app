@@ -37,7 +37,6 @@ export class AuthService {
     // Replace with NgRx
     //this.user.next(null!);
     this.store.dispatch(new AuthActions.Logout());
-    this.router.navigate(['/auth']);
     // localStorage.clear()
     localStorage.removeItem('userData');
     if (this.tokenExpirationTimer) {
@@ -84,54 +83,6 @@ export class AuthService {
         new Date().getTime();
       this.autoLogout(expirationDuration);
     }
-  }
-
-  login(email: string, password: string) {
-    // Return subscribable
-    return this.http
-      .post<AuthResponseData>(
-        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${this.authKeyService.getWebAPIKey()}`,
-        {
-          email: email,
-          password: password,
-          returnSecureToken: true,
-        }
-      )
-      .pipe(
-        catchError(this.handleError),
-        tap((respData) => {
-          this.handleAuthentication(
-            respData.email,
-            respData.localId,
-            respData.idToken,
-            +respData.expiresIn
-          );
-        })
-      );
-  }
-
-  signup(email: string, password: string) {
-    // Return subscribable
-    return this.http
-      .post<AuthResponseData>(
-        `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${this.authKeyService.getWebAPIKey()}`,
-        {
-          email: email,
-          password: password,
-          returnSecureToken: true,
-        }
-      )
-      .pipe(
-        catchError(this.handleError),
-        tap((respData) => {
-          this.handleAuthentication(
-            respData.email,
-            respData.localId,
-            respData.idToken,
-            +respData.expiresIn
-          );
-        })
-      );
   }
 
   private handleAuthentication(

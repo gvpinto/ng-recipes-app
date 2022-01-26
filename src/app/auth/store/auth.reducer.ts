@@ -10,7 +10,7 @@ export interface State {
 
 const initialState: State = {
   user: undefined,
-  authError: undefined,
+  authError: null!,
   loading: false,
 };
 
@@ -29,7 +29,7 @@ export function authReducer(
       return {
         ...state,
         user,
-        authError: undefined,
+        authError: null!,
         loading: false,
       };
     case AuthActions.LOGOUT:
@@ -38,9 +38,10 @@ export function authReducer(
         user: undefined,
       };
     case AuthActions.LOGIN_START:
+    case AuthActions.SIGNUP_START:
       return {
         ...state,
-        authError: undefined,
+        authError: null!,
         loading: true,
       };
     case AuthActions.AUTHENTICATE_FAIL:
@@ -49,6 +50,11 @@ export function authReducer(
         user: undefined,
         authError: action.payload,
         loading: false,
+      };
+    case AuthActions.CLEAR_ERROR:
+      return {
+        ...state,
+        authError: null!,
       };
     default:
       return state;
