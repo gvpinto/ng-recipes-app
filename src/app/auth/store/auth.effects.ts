@@ -15,10 +15,79 @@ export interface AuthResponseData {
   localId: string; //The uid of the newly created user.
   registered?: boolean; //Whether the email is for an existing account.
 }
+
+const handleAuthentication = (
+  expiresIn: number,
+  email: string,
+  userId: string,
+  token: string
+) => {
+  // + sign to convert to nummeric
+  const expirationDate = new Date(new Date().getTime() + +expiresIn * 1000);
+
+  return new AuthActions.AuthenticateSuccess({
+    email: email,
+    userId: userId,
+    token: token,
+    expirationDate: expirationDate,
+  });
+};
+
+const handleError = (errorResp: any) => {
+  // Should return a non error Observable so the action$.pop Observable does not die.
+  let errorMessage = 'An Unknown Error Occurred';
+  if (!errorResp.error || !errorResp.error.error) {
+    return of(new AuthActions.AuthenticateFail(errorMessage));
+  }
+  switch (errorResp.error.error.message) {
+    case 'EMAIL_EXISTS':
+      errorMessage = 'This email already exists';
+      break;
+    case 'EMAIL_NOT_FOUND':
+      errorMessage = 'This email does not exists';
+      break;
+    case 'INVALID_PASSWORD':
+      errorMessage = 'Password is invalid';
+      break;
+    case 'TOO_MANY_ATTEMPTS_TRY_LATER':
+      errorMessage = 'Too many attempts';
+      break;
+    default:
+      break;
+  }
+  return of(new AuthActions.AuthenticateFail(errorMessage));
+};
 @Injectable()
 export class AuthEffects {
   @Effect()
-  authSignUp = this.actions$.pipe(ofType(AuthActions.SIGNUP_START));
+  authSignUp = this.actions$.pipe(
+    ofType(AuthActions.SIGNUP_START),
+    switchMap((signupActions: AuthActions.SignupStart) => {
+      return this.http
+        .post<AuthResponseData>(
+          `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${this.authKeyService.getWebAPIKey()}`,
+          {
+            email: signupActions.payload.email,
+            password: signupActions.payload.password,
+            returnSecureToken: true,
+          }
+        )
+        .pipe(
+          // map automatically returns an observable
+          map((resData) => {
+            return handleAuthentication(
+              +resData.expiresIn,
+              resData.email,
+              resData.localId,
+              resData.idToken
+            );
+          }),
+          catchError((errorResp) => {
+            return handleError(errorResp);
+          })
+        );
+    })
+  );
 
   // This effect observable should never die
   @Effect()
@@ -38,41 +107,15 @@ export class AuthEffects {
         .pipe(
           // map automatically returns an observable
           map((resData) => {
-            // + sign to convert to nummeric
-            const expirationDate = new Date(
-              new Date().getTime() + +resData.expiresIn * 1000
+            return handleAuthentication(
+              +resData.expiresIn,
+              resData.email,
+              resData.localId,
+              resData.idToken
             );
-
-            return new AuthActions.AuthenticateSuccess({
-              email: resData.email,
-              userId: resData.localId,
-              token: resData.idToken,
-              expirationDate: expirationDate,
-            });
           }),
           catchError((errorResp) => {
-            // Should return a non error Observable so the action$.pop Observable does not die.
-            let errorMessage = 'An Unknown Error Occurred';
-            if (!errorResp.error || !errorResp.error.error) {
-              return of(new AuthActions.AuthenticateFail(errorMessage));
-            }
-            switch (errorResp.error.error.message) {
-              case 'EMAIL_EXISTS':
-                errorMessage = 'This email already exists';
-                break;
-              case 'EMAIL_NOT_FOUND':
-                errorMessage = 'This email does not exists';
-                break;
-              case 'INVALID_PASSWORD':
-                errorMessage = 'Password is invalid';
-                break;
-              case 'TOO_MANY_ATTEMPTS_TRY_LATER':
-                errorMessage = 'Too many attempts';
-                break;
-              default:
-                break;
-            }
-            return of(new AuthActions.AuthenticateFail(errorMessage));
+            return handleError(errorResp);
           })
         );
     })

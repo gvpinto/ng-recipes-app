@@ -27,7 +27,6 @@ export class AuthComponent implements OnInit, OnDestroy {
   error?: string;
   @ViewChild(PlaceholderDirective, { static: false })
   alertHost?: PlaceholderDirective;
-  obsAuth?: Observable<AuthResponseData>;
   private closeSub?: Subscription;
 
   constructor(
@@ -65,22 +64,10 @@ export class AuthComponent implements OnInit, OnDestroy {
         new AuthActions.LoginStart({ email: email, password: password })
       );
     } else {
-      this.isLoading = true;
-      this.obsAuth = this.authService.signup(email, password);
+      this.store.dispatch(
+        new AuthActions.SignupStart({ email: email, password: password })
+      );
     }
-
-    // this.obsAuth?.subscribe({
-    //   next: (respData) => {
-    //     console.log(respData);
-    //     this.isLoading = false;
-    //     this.router.navigate(['/recipes']);
-    //   },
-    //   error: (error) => {
-    //     this.error = error.message;
-    //     this.showErrorAlert(error.message);
-    //     this.isLoading = false;
-    //   },
-    // });
 
     form.reset();
   }
