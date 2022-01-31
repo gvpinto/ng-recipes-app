@@ -5,6 +5,7 @@ import { Recipe } from '../recipe-model';
 import { RecipeService } from '../recipe.service';
 import * as fromApp from '../../store/app.reducer';
 import { map, switchMap } from 'rxjs';
+import * as RecipeActions from '../store/recipe-actions';
 
 @Component({
   selector: 'app-recipe-detail',
@@ -30,6 +31,7 @@ export class RecipeDetailComponent implements OnInit {
         }),
         switchMap((id) => {
           this.id = id;
+          // No need to unsubscribe as Angular takes care of unscribing
           return this.store.select('recipes');
         }),
         map((recipesState) => {
@@ -70,7 +72,8 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   onDeleteRecipe(): void {
-    this.recipeService.deleteRecipe(this.id!);
+    // this.recipeService.deleteRecipe(this.id!);
+    this.store.dispatch(new RecipeActions.DeleteRecipe(this.id!));
     this.router.navigate(['/recipes']);
   }
 }
